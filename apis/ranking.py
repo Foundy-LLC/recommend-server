@@ -1,12 +1,19 @@
+from fastapi import status as st_code
+
 import apis.response_config as config
 from crud import all_ranking
 
 
-# id, name, profile_image as profileImage, ranking.total_score as rankingScore, status
+def ranking_total(db, organizationId: int, page: int):
+    result = all_ranking.get_all_ranking(db, organizationId=organizationId, page=page)
+    res_body = config.ResponseConfig()
 
-def ranking_index(db, organization: str, page: int):
-    result = all_ranking.get_all_ranking(db, organization=organization, page=page)
-    data = {"users": []}
+    if not result:
+        return st_code.HTTP_404_NOT_FOUND, res_body.out_of_page()
+    elif result == "NO ORG":
+        return st_code.HTTP_404_NOT_FOUND, res_body.no_org()
+
+    data = []
 
     for row in result:
         id, name, profile_image, score, status = row
@@ -15,11 +22,10 @@ def ranking_index(db, organization: str, page: int):
             "id": id,
             "name": name,
             "profileImage": profile_image,
-            "rankinScore": score,
+            "rankingScore": score,
             "status": status
         })
 
-        data["users"].append(user_data)
+        data.append(user_data)
 
-    res_body = config.ResponseConfig()
-    return res_body.success(data)
+    return st_code.HTTP_200_OK, res_body.success(data)

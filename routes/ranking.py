@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, responses
 from sqlalchemy.orm import Session
 
 from apis import ranking
@@ -10,7 +10,7 @@ router = APIRouter(
 
 
 @router.get("/")  # Route Path
-def ranking_index(organization: str = None, page: int = 1, db: Session = Depends(connect_db)):
-    res = ranking.ranking_index(db=db, organization=organization, page=page)  # apis 호출
+def ranking_index(organizationId: int = None, page: int = 0, db: Session = Depends(connect_db)):
+    status, res = ranking.ranking_total(db=db, organizationId=organizationId, page=page)  # apis 호출
 
-    return res
+    return responses.JSONResponse(status_code=status, content=res)
