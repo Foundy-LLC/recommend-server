@@ -1,7 +1,7 @@
 from db.session import SessionLocal
 
 
-def get_db():
+def connect_db():
     db = SessionLocal()
     try:
         yield db  # DB 연결 성공한 경우, DB 세션 시작
