@@ -10,9 +10,9 @@ def get_all_ranking(db: Session, page: int):
     from user_account
     join (
         select user_id, total_score from user_ranking
-        order by total_score
     ) as ranking
     on ranking.user_id = user_account.id 
+    order by rankingScore desc 
     """
 
     query += f"""
