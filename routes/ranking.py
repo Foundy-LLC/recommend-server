@@ -11,6 +11,9 @@ router = APIRouter(
 
 @router.get("/")  # Route Path
 def ranking_index(organizationId: int = None, page: int = 0, db: Session = Depends(connect_db)):
-    status, res = ranking.ranking_total(db=db, organizationId=organizationId, page=page)  # apis 호출
+    if organizationId:
+        status, res = ranking.ranking_organization(db=db, organizationId=organizationId, page=page)
+    else:
+        status, res = ranking.ranking_total(db=db, page=page)
 
     return responses.JSONResponse(status_code=status, content=res)
