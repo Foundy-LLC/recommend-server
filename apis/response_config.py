@@ -9,7 +9,7 @@ class ResponseConfig:
 
     def update(self, data: dict):
         self.response_body["message"] = data["message"] or None
-        self.response_body["data"] = data["data"] or None
+        self.response_body["data"] = data["data"] or []
 
     def success(self, data):
         self.message = "회원 랭킹을 성공적으로 얻었습니다."

@@ -1,31 +1,12 @@
-from fastapi import status as st_code
-
-import apis.response_config as config
 from crud import all_ranking
+from crud.response_body import get_response_body
 
 
-def ranking_total(db, organizationId: int, page: int):
-    result = all_ranking.get_all_ranking(db, organizationId=organizationId, page=page)
-    res_body = config.ResponseConfig()
+def ranking_total(db, page: int):
+    result = all_ranking.get_all_ranking(db, page=page)
+    return get_response_body(result)
 
-    if not result:
-        return st_code.HTTP_404_NOT_FOUND, res_body.out_of_page()
-    elif result == "NO ORG":
-        return st_code.HTTP_404_NOT_FOUND, res_body.no_org()
 
-    data = []
-
-    for row in result:
-        id, name, profile_image, score, status = row
-
-        user_data = dict({
-            "id": id,
-            "name": name,
-            "profileImage": profile_image,
-            "rankingScore": score,
-            "status": status
-        })
-
-        data.append(user_data)
-
-    return st_code.HTTP_200_OK, res_body.success(data)
+def ranking_organization(db, organizationId: int, page: int):
+    result = all_ranking.get_org_ranking(db, organizationId, page=page)
+    return get_response_body(result)
