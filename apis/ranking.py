@@ -15,4 +15,4 @@ def ranking_organization(db, organizationId: int, page: int):
 
 def personal_ranking(db, user_id: str):
     result = get_total_ranking(db, user_id)
-    return get_response_body(result)
+    return get_response_body(result, is_personal=True)

@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
+from starlette.requests import Request
 
 from routes.ranking import router as rank_router
 
@@ -7,8 +9,6 @@ app.include_router(rank_router)  # 다른 route파일들을 불러와 포함시�
 
 
 @app.get("/")  # Route Path
-def index():
-    return {
-        "status": 404,
-        "message": "찾으시는 페이지가 없습니다."
-    }
+async def index(request: Request):
+    response = RedirectResponse(url="ranking")
+    return response

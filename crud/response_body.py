@@ -5,7 +5,7 @@ from fastapi import status as st_code
 import apis.response_config as config
 
 
-def get_response_body(result: list) -> Tuple[int, Dict]:
+def get_response_body(result: list, is_personal=False) -> Tuple[int, Dict]:
     res_body = config.ResponseConfig()
 
     if not result:
@@ -28,4 +28,6 @@ def get_response_body(result: list) -> Tuple[int, Dict]:
 
         data.append(user_data)
 
+    if is_personal:
+        return st_code.HTTP_200_OK, res_body.success(data[0])
     return st_code.HTTP_200_OK, res_body.success(data)
