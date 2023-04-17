@@ -4,15 +4,22 @@ from sqlalchemy.orm import Session
 LIMIT = 50
 
 
-def get_all_ranking(db: Session, page: int):
+def get_all_ranking(db: Session, weekly: bool, page: int):
+    criteria_score = "weekly_score" if weekly else "total_score"
+    criteria_rank = "weekly_ranking" if weekly else "total_ranking"
+
     query = f"""
-    select id, name, profile_image as profileImage, ranking.total_score as rankingScore, status
+    WITH
+        rank_result AS (select user_id as user_id, {criteria_score} as score, {criteria_rank} as rank from user_ranking)
+
+    select id, name, profile_image as profileImage, ranking.score as rankingScore, \
+    ranking.rank as ranking, status
     from user_account
     join (
-        select user_id, total_score from user_ranking
+        table rank_result
     ) as ranking
     on ranking.user_id = user_account.id 
-    order by rankingScore desc 
+    order by ranking
     """
 
     query += f"""
@@ -33,14 +40,15 @@ def get_org_ranking(db: Session, organizationId: int, page: int):
         return ["NO ORG"]
 
     query = f"""
-    select total.id, name, profileImage, rankingScore, status
+    select total.id, name, profileImage, rankingScore, ranking, status
     from
     (
-        select id, name, profile_image as profileImage, ranking.total_score as rankingScore, status
+        select id, name, profile_image as profileImage, ranking.total_score as rankingScore, \
+        ranking.total_ranking as ranking, status
         from user_account
         join (
-            select user_id, total_score from user_ranking
-            order by total_score desc
+            select user_id, total_score, total_ranking from user_ranking
+            order by total_ranking
         ) as ranking
         on ranking.user_id = user_account.id
     ) as total

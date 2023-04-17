@@ -16,13 +16,14 @@ def get_response_body(result: list, is_personal=False) -> Tuple[int, Dict]:
     data = []
 
     for row in result:
-        id, name, profile_image, score, status = row
+        id, name, profile_image, score, rank, status = row
 
         user_data = dict({
             "id": id,
             "name": name,
             "profileImage": profile_image,
             "rankingScore": score,
+            "ranking": rank,
             "status": status
         })
 

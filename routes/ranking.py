@@ -10,12 +10,12 @@ router = APIRouter(
 
 
 @router.get("")  # Route Path
-def get_all_ranking_index(organizationId: int = None, page: int = 0, db: Session = Depends(connect_db)):
+def get_all_ranking_index(organizationId: int = None, page: int = 0, weekly=False, db: Session = Depends(connect_db)):
     if organizationId:
         status, res = ranking_organization(
             db=db, organizationId=organizationId, page=page)
     else:
-        status, res = ranking_total(db=db, page=page)
+        status, res = ranking_total(db=db, weekly=weekly, page=page)
 
     return responses.JSONResponse(status_code=status, content=res)
 

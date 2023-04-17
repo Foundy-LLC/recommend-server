@@ -3,8 +3,8 @@ from crud.my_ranking import get_total_ranking
 from crud.response_body import get_response_body
 
 
-def ranking_total(db, page: int):
-    result = get_all_ranking(db, page=page)
+def ranking_total(db, weekly: bool, page: int):
+    result = get_all_ranking(db, weekly=weekly, page=page)
     return get_response_body(result)
 
 
