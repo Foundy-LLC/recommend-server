@@ -1,5 +1,5 @@
 from crud.all_ranking import get_all_ranking, get_org_ranking
-from crud.my_ranking import get_total_ranking
+from crud.my_ranking import get_my_ranking
 from crud.response_body import get_response_body
 
 
@@ -13,6 +13,6 @@ def ranking_organization(db, organizationId: int, page: int):
     return get_response_body(result)
 
 
-def personal_ranking(db, user_id: str):
-    result = get_total_ranking(db, user_id)
+def personal_ranking(db, user_id: str, weekly: bool):
+    result = get_my_ranking(db, user_id, weekly)
     return get_response_body(result, is_personal=True)

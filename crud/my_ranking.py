@@ -2,13 +2,20 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 
-def get_total_ranking(db: Session, user_id):
+def get_my_ranking(db: Session, user_id: str, weekly: bool):
+    criteria_score = "weekly_score" if weekly else "total_score"
+    criteria_ranking = "weekly_ranking" if weekly else "total_ranking"
+
     query = f"""
-    select id, name, profile_image as profileImage, ranking.total_score as rankingScore, ranking.total_ranking as ranking, status
+    WITH
+        inquiry AS (select user_id as user_id, \
+        {criteria_score} as score, {criteria_ranking} as ranking from user_ranking where user_id='{user_id}')
+
+    
+    select id, name, profile_image as profileImage, ranking.score as rankingScore, ranking.ranking as ranking, status
     from user_account
     join (
-        select user_id, total_score, total_ranking from user_ranking
-        where user_id='{user_id}'
+        table inquiry
     ) as ranking
     on ranking.user_id = user_account.id
     """

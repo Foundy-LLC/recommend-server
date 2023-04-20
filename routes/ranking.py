@@ -21,6 +21,6 @@ def get_all_ranking_index(organizationId: int = None, page: int = 0, weekly=Fals
 
 
 @router.get("/{user_id}")
-def get_my_ranking_index(user_id, db: Session = Depends(connect_db)):
-    status, res = personal_ranking(db, user_id=user_id)
+def get_my_ranking_index(user_id, weekly=False, db: Session = Depends(connect_db)):
+    status, res = personal_ranking(db, user_id=user_id, weekly=weekly)
     return responses.JSONResponse(status_code=status, content=res)
