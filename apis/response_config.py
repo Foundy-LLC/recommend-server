@@ -11,13 +11,13 @@ class ResponseConfig:
         self.response_body["message"] = data["message"] or None
         self.response_body["data"] = data["data"] or []
 
-    def success(self, data):
+    def success(self, data, user_cnt):
         self.message = "회원 랭킹을 성공적으로 얻었습니다."
         self.data = data
 
         new_data = {
             "message": self.message,
-            "data": self.data
+            "data": {"totalUserCount": user_cnt, "users": self.data}
         }
 
         self.update(new_data)
