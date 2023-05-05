@@ -5,7 +5,7 @@ from fastapi import status as st_code
 import apis.response_config as config
 
 
-def get_response_body(result: list, is_personal=False) -> Tuple[int, Dict]:
+def get_response_body(user_cnt: int, result: list, is_personal=False) -> Tuple[int, Dict]:
     res_body = config.ResponseConfig()
 
     if not result:
@@ -16,7 +16,7 @@ def get_response_body(result: list, is_personal=False) -> Tuple[int, Dict]:
     data = []
 
     for row in result:
-        id, name, profile_image, score, rank, status = row
+        id, name, profile_image, score, rank, introduce, studyTime, status = row
 
         user_data = dict({
             "id": id,
@@ -24,11 +24,13 @@ def get_response_body(result: list, is_personal=False) -> Tuple[int, Dict]:
             "profileImage": profile_image,
             "rankingScore": score,
             "ranking": rank,
-            "status": status
+            "introduce": introduce,
+            "studyTime": studyTime,
+            "status": status,
         })
 
         data.append(user_data)
 
     if is_personal:
-        return st_code.HTTP_200_OK, res_body.success(data[0])
-    return st_code.HTTP_200_OK, res_body.success(data)
+        return st_code.HTTP_200_OK, res_body.success(user_cnt=user_cnt, data=data[0])
+    return st_code.HTTP_200_OK, res_body.success(user_cnt=user_cnt, data=data)
