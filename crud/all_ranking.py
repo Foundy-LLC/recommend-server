@@ -5,6 +5,7 @@ LIMIT = 50
 
 
 def get_all_ranking(db: Session, weekly: bool, page: int):
+    print(weekly)
     criteria_score = "weekly_score" if weekly else "total_score"
     criteria_study_time = "weekly_study_time" if weekly else "total_study_time"
 
