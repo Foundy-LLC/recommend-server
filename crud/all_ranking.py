@@ -13,10 +13,11 @@ def get_all_ranking(db: Session, weekly: bool, page: int):
         rank_result AS (select user_id as user_id, {criteria_score} as score,\
         {criteria_study_time} as studyTime from user_ranking)
 
-    select id, name, profile_image as profileImage, ranking.score as rankingScore, \
-    rank() over (order by ranking.score desc) as ranking, introduce, ranking.studyTime, status
+    select id, name, profile_image as profileImage, coalesce(ranking.score,0) as rankingScore, \
+    rank() over (order by coalesce(ranking.score,0) desc) as ranking, introduce,\
+    coalesce(ranking.studyTime, 0) as studyTime, status
     from user_account
-    join (
+    left outer join (
         table rank_result
     ) as ranking
     on ranking.user_id = user_account.id 
@@ -45,10 +46,10 @@ def get_org_ranking(db: Session, organizationId: int, page: int):
     rank() over (order by total.rankingScore desc) as ranking, total.introduce, total.studyTime, total.status
     from
     (
-        select id, name, profile_image as profileImage, ranking.total_score as rankingScore,\
-        introduce, ranking.total_study_time as studyTime, status
+        select id, name, profile_image as profileImage, coalesce(ranking.total_score, 0) as rankingScore,\
+        introduce, coalesce(ranking.total_study_time, 0) as studyTime, status
         from user_account
-        join (
+        left outer join (
             select user_id, total_score, total_study_time from user_ranking
         ) as ranking
         on ranking.user_id = user_account.id

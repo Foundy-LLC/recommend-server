@@ -17,7 +17,7 @@ def get_my_total_ranking(db: Session, user_id: str, weekly: bool):
     select id, name, profile_image as profileImage, ranking.score as rankingScore, ranking.ranking as ranking,\
      introduce, ranking.studyTime, status
     from user_account
-    join (
+    left outer join (
         table inquiry
     ) as ranking
     on ranking.user_id = user_account.id
@@ -36,23 +36,23 @@ def get_my_org_ranking(db: Session, user_id: str, organizationId: int):
         return ["NO ORG"]
 
     query = f"""
-    select total.id, name, total.profileImage, total.rankingScore, \
-    rank() over (order by total.rankingScore desc) as ranking,\
+    select * from 
+    (select total.id, name, total.profileImage, total.rankingScore, \
+    rank() over (order by coalesce(total.rankingScore, 0) desc) as ranking,\
     total.introduce, total.studyTime, total.status
     from
     (
-        select id, name, profile_image as profileImage, ranking.total_score as rankingScore,\
-        introduce, ranking.total_study_time as studyTime, status
+        select id, name, profile_image as profileImage, coalesce(ranking.total_score,0) as rankingScore,\
+        introduce, coalesce(ranking.total_study_time,0) as studyTime, status
         from user_account
-        join (
+        left outer join (
             select user_id, total_score, total_study_time from user_ranking
         ) as ranking
         on ranking.user_id = user_account.id
     ) as total
     join belong
-    on total.id=belong.user_id
-    and belong.organization_id='{organizationId}'
-    where total.id='{user_id}'
+    on belong.organization_id='{organizationId}') as final
+    where final.id = '{user_id}'
     """
 
     query_result = db.execute(text(query))
