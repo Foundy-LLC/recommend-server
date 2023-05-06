@@ -26,6 +26,18 @@ def get_update_ranking_query(room_id, score):
     return query
 
 
+def get_report_count(room_id, db):
+    query = f"""
+    select count(id) from report
+    where room_id='{room_id}' 
+    and accepted=true
+    """
+
+    report_cnt = db.execute(text(query)).scalar()
+
+    return max(1, report_cnt)
+
+
 def calc_room_rating(active_secs, count):
     return (count - 1) * pow(1.2, count - 1) * math.log(active_secs, BASE - count)
 
@@ -42,6 +54,9 @@ def update_room_ranking(db: Session):
         room_scores[room_id] = room_scores.get(room_id, 0) + calc_room_rating(active_secs, cnt)
 
     for room_id, score in room_scores.items():
+        report_cnt = get_report_count(room_id, db)
+        score -= math.log2(report_cnt)
+
         query = get_update_ranking_query(room_id, score)
         db.execute(text(query))
         db.commit()
