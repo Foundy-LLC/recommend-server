@@ -1,7 +1,6 @@
 import math
 
 from sqlalchemy import text
-from sqlalchemy.orm import Session
 
 BASE = 6
 
@@ -42,7 +41,7 @@ def calc_room_rating(active_secs, count):
     return (count - 1) * pow(1.2, count - 1) * math.log(active_secs, BASE - count)
 
 
-def update_room_ranking(db: Session):
+def update_room_ranking(db):
     rooms_q = db.execute(text('select room_id, user_count from room_ignition'))
 
     room_scores = {}
