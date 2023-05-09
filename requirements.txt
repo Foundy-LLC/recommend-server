@@ -3,3 +3,4 @@ load_dotenv
 sqlalchemy
 python-dotenv
 psycopg2-binary
+apscheduler
