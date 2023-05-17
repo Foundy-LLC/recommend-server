@@ -28,5 +28,5 @@ class Scheduler:
         if type == 'interval':
             self.sched.add_job(self.job, type, seconds=10, id=job_id)
         elif type == 'cron':
-            self.sched.add_job(self.job, type, day_of_week='mon-sun', hour='6,18', id=job_id,
+            self.sched.add_job(self.job, type, day_of_week='mon-sun', hour='6', id=job_id,
                                kwargs={"db": self.db})
