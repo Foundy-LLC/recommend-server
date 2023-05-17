@@ -10,8 +10,8 @@ app = FastAPI()
 app.include_router(rank_router)  # 다른 route파일들을 불러와 포함시킴
 
 db = connect_db()
-scheduler = Scheduler(update_room_ranking, db)
-scheduler.scheduler('cron', 'room_rating_update')
+scheduler = Scheduler(db)
+scheduler.scheduler(update_room_ranking, 'cron', 'room_rating_update')
 
 
 @app.get("/ranking")  # Route Path

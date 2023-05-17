@@ -3,9 +3,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 
 class Scheduler:
-    def __init__(self, job, db):
+    def __init__(self, db):
         self.sched = BackgroundScheduler(timezone='Asia/Seoul')
-        self.job = job
         self.db = db
         self.sched.start()
         self.job_name = ''
@@ -23,10 +22,10 @@ class Scheduler:
             print("fail to stop Scheduler: {err}".format(err=err))
             return
 
-    def scheduler(self, type, job_id):
+    def scheduler(self, job, type, job_id):
         print(f"{job_id} Scheduler Starts / TYPE : {type}")
         if type == 'interval':
-            self.sched.add_job(self.job, type, seconds=10, id=job_id)
+            self.sched.add_job(job, type, seconds=10, id=job_id, kwargs={"db": self.db})
         elif type == 'cron':
-            self.sched.add_job(self.job, type, day_of_week='mon-sun', hour='6', id=job_id,
+            self.sched.add_job(job, type, day_of_week='mon-sun', hour='6', id=job_id,
                                kwargs={"db": self.db})
