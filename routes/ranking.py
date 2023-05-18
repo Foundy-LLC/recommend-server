@@ -22,7 +22,7 @@ def get_all_ranking_index(organizationId: int = None, page: int = 0, weekly: boo
 
 
 @router.get("/{user_id}")
-def get_my_ranking_index(user_id, weekly=False, organizationId: int = None, db: Session = Depends(connect_db)):
+def get_my_ranking_index(user_id, weekly: bool = False, organizationId: int = None, db: Session = Depends(connect_db)):
     if organizationId:
         status, res = personal_org_ranking(db, user_id=user_id, organizationId=organizationId)
     else:
