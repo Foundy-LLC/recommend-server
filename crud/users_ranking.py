@@ -1,14 +1,44 @@
-from datetime import datetime
+import math
 
-import pytz
 from sqlalchemy import text
 
 
-def get_report_count(user_id, db):
+def get_yesterday_studied_time(user_id, db):
+    """
+    user_id 를 통해 해당 유저의 하루 전 공부 시간을 계산하여 리턴합니다.
+
+    :param user_id: user_id from study_history
+    :param db: Session db
+    :return: int
+    """
+
     query = f"""
-    select count(id) from report
-    where suspect_id='{user_id}' 
-    and accepted=true
+    SELECT EXTRACT(EPOCH FROM SUM(exit_at - join_at)) AS total_study_time_seconds
+    FROM study_history
+    WHERE DATE_TRUNC('day', join_at) = DATE_TRUNC('day', CURRENT_DATE - INTERVAL '1 day')
+    and user_id='{user_id}'
+    """
+
+    studied_time = db.execute(text(query)).scalar()
+    studied_time = max(studied_time, 0)
+
+    return studied_time
+
+
+def get_report_count(user_id, db):
+    """
+    해당 유저의 하루 전 신고기록을 조회합니다.
+
+    :param user_id: user_id from report
+    :param db: Session db
+    :return: report count (int)
+    """
+    query = f"""
+    SELECT COUNT(*) AS report_count
+    FROM report
+    WHERE DATE_TRUNC('day', reported_at) = DATE_TRUNC('day', CURRENT_DATE - INTERVAL '1 day')
+      AND suspect_id = '{user_id}'
+      AND accepted = true
     """
 
     report_cnt = db.execute(text(query)).scalar()
@@ -17,49 +47,81 @@ def get_report_count(user_id, db):
 
 
 def get_days_row_cnt(user_id, db):  # runs on every Sunday
-    today = datetime.now()
-    today_utc = today.astimezone(pytz.utc).strftime("%Y-%m-%d")
-
     query = f"""
-    WITH inquiry as (
-        SELECT
-        user_id, DATE_TRUNC('week', join_at)::date+7 AS weeks,\
-        COUNT(DISTINCT DATE_TRUNC('day', join_at)) AS row_days
-        FROM study_history
-        WHERE EXTRACT(DOW FROM join_at) >= 1 AND EXTRACT(DOW FROM join_at) <= 7
-        GROUP BY user_id, DATE_TRUNC('week', join_at))
-    
-    select row_days from inquiry
-    where user_id='{user_id}'
-    and weeks like '{today_utc}%'
+    select days_row
+    from user_ranking
+    where user_id = '{user_id}'
     """
 
     row_cnt = db.execute(text(query)).scalar()
     return row_cnt
 
 
-def get_weekly_study_time(user_id, db):
-    today = datetime.now()
-    today_utc = today.astimezone(pytz.utc).strftime("%Y-%m-%d")
+def reset_weekly_study_time(user_id, db):
+    """
+    해당 유저의 weekly_study_time 및 weekly_score 를 초기화합니다.
 
-    query = f"""
-    with inquiry as (
-        SELECT user_id,
-        DATE_TRUNC('week', join_at)::date+7 AS week_start,
-        SUM(EXTRACT(EPOCH FROM (exit_at - join_at))) AS study_time_seconds
-        FROM study_history
-        WHERE EXTRACT(DOW FROM join_at) >= 1 AND EXTRACT(DOW FROM join_at) <= 7
-          AND exit_at IS NOT NULL
-        GROUP BY user_id, DATE_TRUNC('week', join_at))
-        
-    select study_time_seconds from inquiry
-    where user_id='{user_id}'
-    week_start like '{today_utc}%'
+    해당 쿼리는 매 월요일 09시에 실행됩니다.
+
+    :paramauser_id: user_id from user_ranking
+    :param db: Session - DB
+    :return: None
     """
 
-    study_time = db.execute(text(query)).scalar()
-    return study_time
+    query = f"""
+    update user_ranking
+    set weekly_study_time = 0, weekly_score = 0
+    where user_id = '{user_id}' 
+    """
+
+    db.execute(text(query))
+    db.commit()
 
 
-def get_report_cnt():
-    pass
+def update_user_rating(user_id, db):
+    """
+    전날의 기록으로 해당 유저의 점수를 업데이트합니다.
+
+    weekly_score 및 total_score 를 업데이트합니다.
+
+    해당 쿼리는 매일 09시마다 돌아가게 됩니다.
+
+    :param user_id: user_id from user_ranking
+    :param db: Session DB
+    :return: None
+    """
+    studied_time = get_yesterday_studied_time(user_id, db)
+
+    if studied_time > 0:
+        query = f"""
+        update user_ranking
+        set weekly_study_time = weekly_study_time + {studied_time},
+        total_study_time = total_study_time + {studied_time} 
+        where user_id='{user_id}'
+        """
+
+        db.execute(text(query))
+
+        query = f"""
+            update user_ranking
+            set days_row = days_row + 1
+            where user_id = '{user_id}'
+            """
+
+        db.execute(text(query))
+
+    days_row = get_days_row_cnt(user_id, db)
+    report = get_report_count(user_id, db)
+
+    score = math.sqrt(studied_time) + pow(1.5, days_row) - pow(2, report)
+    score = max(score, 0)
+
+    query = f"""
+    update user_ranking
+    set weekly_score = sqrt(weekly_score) + {score},
+    total_score = total_score + weekly_score
+    where user_id = '{user_id}'
+    """
+
+    db.execute(text(query))
+    db.commit()
