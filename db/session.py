@@ -6,7 +6,11 @@ from core.config import connect_config
 SQLALCHEMY_DATABASE_URL = connect_config.DATABASE_URL
 
 # DB 연결 생성
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(SQLALCHEMY_DATABASE_URL,
+                       pool_size=10,
+                       max_overflow=20,
+                       pool_recycle=900,
+                       pool_pre_ping=True)
 
 """
 세션 생성
