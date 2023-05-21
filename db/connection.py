@@ -1,11 +1,25 @@
+import time
+
 from db.session import SessionLocal
 
 
 def connect_db():
     db = SessionLocal()
-    try:
-        # DB 연결 성공한 경우, DB 세션 시작
-        return db
-    finally:
-        db.close()
-    # db 세션이 시작된 후, API 호출이 마무리되면 DB 세션을 닫아준다.
+    is_error = True  # 데이터 베이스에서 오류가 있는 경우 재시도 할 수 있도록 함
+    retry_count = 0
+
+    while is_error:
+        try:
+            is_error = False
+            return db
+
+        except Exception:
+            if retry_count > 5:
+                print("DB POOL EXCEEDED")
+                is_error = False  # 무한 시도 방지
+
+            time.sleep(1.5)
+            retry_count += 1
+
+        finally:
+            db.close()
