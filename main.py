@@ -9,8 +9,10 @@ from routes.ranking import router as rank_router
 app = FastAPI()
 app.include_router(rank_router)  # 다른 route파일들을 불러와 포함시킴
 
-db = connect_db()
-scheduler = Scheduler(update_room_ranking, db)
+db_generator = connect_db()
+db_instance = next(db_generator)
+
+scheduler = Scheduler(update_room_ranking, db_instance)
 scheduler.scheduler('cron', 'room_rating_update')
 
 

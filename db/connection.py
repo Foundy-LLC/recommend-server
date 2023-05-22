@@ -11,7 +11,7 @@ def connect_db():
     while is_error:
         try:
             is_error = False
-            return db
+            yield db
 
         except Exception:
             if retry_count > 5:
