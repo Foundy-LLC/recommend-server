@@ -14,7 +14,7 @@ def get_my_tag_vector(db:Session, user_id:str):
 
 def get_users_tag_vector(db:Session, user_id:str):
     query = f"""
-    select id, tag_vec from user_account
+    select id, tag_vec->'item' from user_account
     where tag_vec -> 'item' is not null
     and id != '{user_id}'
     """
@@ -35,7 +35,9 @@ def is_friend(db:Session, user_id:str, check_id:str):
     and acceptor_id='{user_id}'
     """
 
-    result = db.execute(text(query_x)).scalar() or db.execute(text(query_y)).scalar()
+    x_ = db.execute(text(query_x)).scalar() or False
+    y_ = db.execute(text(query_y)).scalar() or False
+    result = x_ & y_
     return result
 
 def get_users_all_tag(db:Session):
