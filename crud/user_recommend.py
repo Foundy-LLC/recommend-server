@@ -14,7 +14,7 @@ def get_my_tag_vector(db:Session, user_id:str):
 
 def get_users_tag_vector(db:Session, user_id:str):
     query = f"""
-    select id, tag_vec->'item' from user_account
+    select id, name, profile_image, introduce, status, tag_vec->'item' from user_account
     where tag_vec -> 'item' is not null
     and id != '{user_id}'
     """

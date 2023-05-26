@@ -34,3 +34,6 @@ def get_response_body(user_cnt: int, result: list, is_personal=False) -> Tuple[i
     if is_personal:
         return st_code.HTTP_200_OK, res_body.success(user_cnt=user_cnt, data=data[0])
     return st_code.HTTP_200_OK, res_body.success(user_cnt=user_cnt, data=data)
+
+def get_recommend_response_body(result:list) -> Tuple[int, dict]:
+    pass

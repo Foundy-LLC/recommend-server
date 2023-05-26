@@ -19,15 +19,13 @@ def get_recommended_friends(db, user_id: str, model:fasttext):
     rows = get_users_tag_vector(db, user_id)
 
     for row in rows:
-        u_id, tag_vec = row
+        u_id, name, profileImage, introduce, status, tag_vec = row
 
         if not is_friend(db, user_id, u_id):
             similarity = cosine_sim(user_vector, tag_vec)
-            recommend.append({"user" : u_id, "similarity":similarity})
+            recommend.append((u_id, name, profileImage, introduce, status, similarity))
 
-    recommend = sorted(recommend, key=lambda x:x["similarity"], reverse=True)
-    print(recommend)
-
+    recommend = sorted(recommend, key=lambda x:x[-1], reverse=True)[:10]
     
 
 def update_users_vector(db, model:fasttext):
