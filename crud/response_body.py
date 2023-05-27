@@ -35,7 +35,8 @@ def get_response_body(user_cnt: int, result: list, is_personal=False) -> Tuple[i
         return st_code.HTTP_200_OK, res_body.success(user_cnt=user_cnt, data=data[0])
     return st_code.HTTP_200_OK, res_body.success(user_cnt=user_cnt, data=data)
 
-def get_recommend_response_body(result:list) -> Tuple[int, dict]:
+
+def get_recommend_response_body(result: list) -> Tuple[int, dict]:
     res_body = config.ResponseConfig(for_recommend=True)
 
     if not result:
@@ -49,8 +50,8 @@ def get_recommend_response_body(result:list) -> Tuple[int, dict]:
         user_data = dict({
             "id": u_id,
             "name": name,
-            "similarity" : f"{similarity*100:.2f}%",
-            "profileImage" : profileImage,
+            "similarity": f"{similarity * 100:.2f}%",
+            "profileImage": profileImage,
             "introduce": introduce,
             "status": status
         })

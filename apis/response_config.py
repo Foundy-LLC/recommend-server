@@ -1,5 +1,5 @@
 class ResponseConfig:
-    def __init__(self, for_recommend = False):
+    def __init__(self, for_recommend=False):
         self.message = ""
         self.data = None
         self.recommend = for_recommend
@@ -7,7 +7,6 @@ class ResponseConfig:
             "message": self.message,
             "data": self.data
         }
-
 
     def update(self, data: dict):
         self.response_body["message"] = data["message"] or None
@@ -54,8 +53,8 @@ class ResponseConfig:
         self.message = "UID가 누락되거나 유효하지 않은 UID입니다."
 
         new_data = {
-            "message":self.message,
-            "data" : []
+            "message": self.message,
+            "data": []
         }
 
         self.update(new_data)
