@@ -4,6 +4,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from crud.count_users import is_user_valid
 from crud.response_body import get_recommend_response_body
+from crud.room_recommend import *
 from crud.user_recommend import *
 
 
@@ -42,6 +43,10 @@ def get_recommended_friends(db, user_id: str):
     return get_recommend_response_body(recommend)
 
 
+def get_recommended_rooms(db, user_id: str):
+    recommend = list()
+
+
 def update_users_vector(db, model: fasttext):
     users_tag = get_users_all_tag(db)
 
@@ -58,3 +63,27 @@ def update_users_vector(db, model: fasttext):
         insert_user_vector(db, user, vector_avg.tolist())
 
     print("Users Vector Update Complete")
+
+
+def update_rooms_vector(db, model: fasttext):
+    rooms_info = get_rooms_info(db)
+
+    for room, info in rooms_info.items():
+        tags_len = len(info) - 1  # except title
+
+        vector_avg = np.zeros(300, dtype=np.float32)
+
+        for tag in info[:-1]:
+            tag_vector = model.wv[tag]
+            vector_avg = np.sum([vector_avg, tag_vector], axis=0)
+
+        vector_avg /= tags_len
+
+        title = info[-1]
+        print(title)
+        title_vector = model.wv[title]
+        vector_avg = np.sum([vector_avg, title_vector], axis=0)
+
+        insert_room_vector(db, room, vector_avg.tolist())
+
+    print("Rooms Vector update Complete")
