@@ -9,13 +9,6 @@ app.include_router(rank_router)  # 다른 route파일들을 불러와 포함시�
 app.include_router(rec_router)
 
 
-# db_generator = connect_db()
-# db_instance = next(db_generator)
-#
-# scheduler = Scheduler(update_room_ranking, db_instance)
-# scheduler.scheduler('cron', 'room_rating_update')
-
-
 @app.get("/")  # Route Path
 def root():
     return {"message": "404 Not Found"}
