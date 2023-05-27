@@ -6,3 +6,4 @@ psycopg2-binary
 apscheduler
 gensim
 scikit-learn
+konlpy

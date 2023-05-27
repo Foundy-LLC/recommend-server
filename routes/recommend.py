@@ -29,7 +29,7 @@ def recommend_rooms(user_id: str, db: Session = Depends(connect_db)):
     return responses.JSONResponse(status_code=status, content=res)
 
 
-@router.get("update-room-vec")
+@router.get("/update-room-vec")
 def index(db: Session = Depends(connect_db), model=model):
     update_rooms_vector(db, model)
 
