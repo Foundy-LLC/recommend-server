@@ -37,7 +37,7 @@ def is_friend(db:Session, user_id:str, check_id:str):
 
     x_ = db.execute(text(query_x)).scalar() or False
     y_ = db.execute(text(query_y)).scalar() or False
-    result = x_ & y_
+    result = x_ | y_
     return result
 
 def get_users_all_tag(db:Session):
