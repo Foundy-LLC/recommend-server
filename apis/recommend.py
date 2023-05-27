@@ -33,10 +33,9 @@ def get_recommended_friends(db, user_id: str, model:fasttext):
 
     return get_recommend_response_body(recommend)
 
-    
 
-def update_users_vector(db, model:fasttext):
-    users_tag = get_users_all_tag(db)
+def update_users_vector(db, model:fasttext, user_id=None):
+    users_tag = get_users_all_tag(db,user_id=user_id)
 
     for user, tags in users_tag.items():
         tags_len = len(tags)
@@ -51,4 +50,3 @@ def update_users_vector(db, model:fasttext):
         insert_user_vector(db, user, vector_avg.tolist())
 
     print("Users Vector Update Complete")
-
