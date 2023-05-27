@@ -19,19 +19,25 @@ def cosine_sim(vector1, vector2):
 def get_recommended_friends(db, user_id: str):
     if not is_user_valid(db, user_id):
         return get_recommend_response_body([])
+
+    TOP_N = 10
+
     recommend = list()
 
     user_vector = get_my_tag_vector(db, user_id)
     rows = get_users_tag_vector(db, user_id)
 
     for row in rows:
+        if len(recommend) == TOP_N:
+            break
+
         u_id, name, profileImage, introduce, status, tag_vec = row
 
         if not is_friend(db, user_id, u_id):
             similarity = cosine_sim(user_vector, tag_vec)
             recommend.append((u_id, name, profileImage, introduce, status, similarity))
 
-    recommend = sorted(recommend, key=lambda x: x[-1], reverse=True)[:10]
+    recommend = sorted(recommend, key=lambda x: x[-1], reverse=True)
 
     return get_recommend_response_body(recommend)
 
