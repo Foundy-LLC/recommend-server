@@ -18,6 +18,7 @@ def get_users_count(db: Session, organizationId=None):
 
     return int(query_result.scalar())
 
+
 def is_user_valid(db: Session, user_id: str):
     query = f"""
     select exists (
