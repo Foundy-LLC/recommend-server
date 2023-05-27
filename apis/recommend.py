@@ -2,6 +2,8 @@ from gensim.models import fasttext
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from crud.user_recommend import *
+from crud.response_body import get_recommend_response_body
+from crud.count_users import is_user_valid
 
 def cosine_sim(vector1, vector2):
     vector1 = np.array(vector1).reshape(1,-1)
@@ -13,6 +15,8 @@ def cosine_sim(vector1, vector2):
 
 
 def get_recommended_friends(db, user_id: str, model:fasttext):
+    if not is_user_valid(db, user_id):
+        return get_recommend_response_body(None)
     recommend = list()
 
     user_vector = get_my_tag_vector(db, user_id)
@@ -26,6 +30,9 @@ def get_recommended_friends(db, user_id: str, model:fasttext):
             recommend.append((u_id, name, profileImage, introduce, status, similarity))
 
     recommend = sorted(recommend, key=lambda x:x[-1], reverse=True)[:10]
+
+    return get_recommend_response_body(recommend)
+
     
 
 def update_users_vector(db, model:fasttext):

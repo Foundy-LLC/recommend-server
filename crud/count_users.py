@@ -16,3 +16,15 @@ def get_users_count(db: Session, organizationId=None):
     query_result = db.execute(text(query))
 
     return int(query_result.scalar())
+
+def is_user_valid(db: Session, user_id: str):
+    query = f"""
+    select exists (
+        select 1 from user_account
+        where id='{user_id}'
+    )
+    """
+
+    result = db.execute(text(query)).scalar()
+
+    return result

@@ -36,4 +36,25 @@ def get_response_body(user_cnt: int, result: list, is_personal=False) -> Tuple[i
     return st_code.HTTP_200_OK, res_body.success(user_cnt=user_cnt, data=data)
 
 def get_recommend_response_body(result:list) -> Tuple[int, dict]:
-    pass
+    res_body = config.ResponseConfig(for_recommend=True)
+
+    if not result:
+        return st_code.HTTP_400_BAD_REQUEST, res_body.invalid_uid()
+
+    friends = []
+
+    for row in result:
+        u_id, name, profileImage, introduce, status, similarity = row
+
+        user_data = dict({
+            "id": u_id,
+            "name": name,
+            "similarity" : f"{similarity*100:.2f}%",
+            "profileImage" : profileImage,
+            "introduce": introduce,
+            "status": status
+        })
+
+        friends.append(user_data)
+
+    return st_code.HTTP_200_OK, res_body.success(user_cnt=len(friends), data=friends)

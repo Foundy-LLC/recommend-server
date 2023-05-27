@@ -20,7 +20,7 @@ router = APIRouter(
 
 
 @router.get("/{user_id}/recommended-friends")
-def recommend_users(user_id, db: Session = Depends(connect_db)):
+def recommend_users(user_id:str, db: Session = Depends(connect_db)):
     status, res = get_recommended_friends(db, user_id, model)
 
     return responses.JSONResponse(status_code=status, content=res)
