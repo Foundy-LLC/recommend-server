@@ -57,6 +57,7 @@ def get_org_ranking(db: Session, organizationId: int, page: int):
     join belong
     on total.id=belong.user_id
     and belong.organization_id='{organizationId}'
+    and belong.is_authenticated=true
     """
 
     query += f"""
