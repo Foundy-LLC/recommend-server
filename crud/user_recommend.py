@@ -37,11 +37,6 @@ def is_friend(db: Session, user_id: str, check_id: str):
     result = db.execute(text(query)).scalar()
     return result
 
-<<<<<<< HEAD
-def get_users_all_tag(db:Session, user_id = None):
-=======
->>>>>>> 3349a0cf4242ad68e06e110ad4e0066cc55103ee
-
 def get_users_all_tag(db: Session):
     query_tag = f"""
     select user_id, name from user_tag
