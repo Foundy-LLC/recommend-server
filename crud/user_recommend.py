@@ -37,11 +37,13 @@ def is_friend(db: Session, user_id: str, check_id: str):
     result = db.execute(text(query)).scalar()
     return result
 
-def get_users_all_tag(db: Session):
+
+def get_users_all_tag(db: Session, user_id=None):
     query_tag = f"""
     select user_id, name from user_tag
     join tag t on user_tag.tag_id = t.id
     """
+
     if user_id:
         query_tag += f"""
         where user_id='{user_id}'

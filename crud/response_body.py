@@ -36,6 +36,42 @@ def get_response_body(user_cnt: int, result: list, is_personal=False) -> Tuple[i
     return st_code.HTTP_200_OK, res_body.success(user_cnt=user_cnt, data=data)
 
 
+def get_rooms_response_body(result: list) -> Tuple[int, dict]:
+    res_body = config.ResponseConfig(for_recommend=True)
+
+    if result[0] == "INVALID_UID":
+        return st_code.HTTP_400_BAD_REQUEST, res_body.invalid_uid()
+
+    if not result:
+        return st_code.HTTP_404_NOT_FOUND, res_body.out_of_page()
+
+    rooms = []
+
+    for row in result:
+        room_id, title, master_id, has_password, thumbnail, overview_list, tags, similarity = row
+
+        room_data = dict({
+            "id": room_id,
+            "title": title,
+            "masterId": master_id,
+            "hasPassword": has_password,
+            "thumbnail": thumbnail,
+            "joinCount": len(overview_list),
+            "maxCount": 4,
+            "joinedUsers": [{"id": over.id,
+                             "name": over.name,
+                             "profileImage": over.profileImage,
+                             "introduce": over.introduce,
+                             "status": over.status
+                             } for over in overview_list],
+            "tags": tags
+        })
+
+        rooms.append(room_data)
+
+    return st_code.HTTP_200_OK, res_body.success(user_cnt=len(rooms), data=rooms, rec_type="방")
+
+
 def get_recommend_response_body(result: list) -> Tuple[int, dict]:
     res_body = config.ResponseConfig(for_recommend=True)
 

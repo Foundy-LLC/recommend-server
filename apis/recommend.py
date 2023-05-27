@@ -1,11 +1,12 @@
-import numpy as np
 import re
+
+import numpy as np
 from gensim.models import fasttext
-from sklearn.metrics.pairwise import cosine_similarity
 from konlpy.tag import Okt
+from sklearn.metrics.pairwise import cosine_similarity
 
 from crud.count_users import is_user_valid
-from crud.response_body import get_recommend_response_body
+from crud.response_body import *
 from crud.room_recommend import *
 from crud.user_recommend import *
 
@@ -45,8 +46,34 @@ def get_recommended_friends(db, user_id: str):
     return get_recommend_response_body(recommend)
 
 
-def update_users_vector(db, model: fasttext):
-    users_tag = get_users_all_tag(db)
+def get_recommended_rooms(db: Session, user_id):
+    if not is_user_valid(db, user_id):
+        return get_rooms_response_body(["INVALID_UID"])
+
+    recommend = list()
+
+    user_vector = get_my_tag_vector(db, user_id)
+    rooms = get_rooms_vector(db)
+
+    TOP_N = 30
+
+    for room_id, room_info in rooms.items():
+        if len(recommend) == TOP_N:
+            break
+
+        title, master_id, has_password, thumbnail, room_vec, overview_list, tags = room_info
+
+        similarity = cosine_sim(user_vector, room_vec)
+        recommend.append((room_id, title, master_id, has_password,
+                          thumbnail, overview_list, tags, similarity))
+
+    recommend = sorted(recommend, key=lambda x: x[-1], reverse=True)
+
+    return get_rooms_response_body(recommend)
+
+
+def update_users_vector(db, model: fasttext, user_id):
+    users_tag = get_users_all_tag(db, user_id)
 
     for user, tags in users_tag.items():
         tags_len = len(tags)
@@ -92,7 +119,8 @@ def update_rooms_vector(db, model: fasttext):
 
     print("Rooms Vector update Complete")
 
-def preprocess_title(title:str):
+
+def preprocess_title(title: str):
     okt = Okt()
     title = okt.normalize(title)
 
@@ -115,8 +143,7 @@ def preprocess_title(title:str):
     pattern = r'[^a-zA-Z가-힣]'
     title = re.sub(pattern=pattern, repl=' ', string=title)
 
-    title = list(filter(lambda x:len(x)>1, title.split()))
-
+    title = list(filter(lambda x: len(x) > 1, title.split()))
 
     if not title:
         return okt.nouns(original)
