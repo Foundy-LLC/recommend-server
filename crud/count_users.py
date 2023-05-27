@@ -11,6 +11,7 @@ def get_users_count(db: Session, organizationId=None):
         query += f"""
         join belong b on user_account.id = b.user_id
         and b.organization_id='{organizationId}'
+        and b.is_authenticated=true
         """
 
     query_result = db.execute(text(query))
