@@ -11,11 +11,13 @@ def get_users_count(db: Session, organizationId=None):
         query += f"""
         join belong b on user_account.id = b.user_id
         and b.organization_id='{organizationId}'
+        and b.is_authenticated=true
         """
 
     query_result = db.execute(text(query))
 
     return int(query_result.scalar())
+
 
 def is_user_valid(db: Session, user_id: str):
     query = f"""

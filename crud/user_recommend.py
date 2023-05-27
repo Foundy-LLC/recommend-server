@@ -1,9 +1,10 @@
+from collections import defaultdict
+
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from collections import defaultdict
 
-def get_my_tag_vector(db:Session, user_id:str):
+def get_my_tag_vector(db: Session, user_id: str):
     query = f"""
     select tag_vec->'item' from user_account
     where id = '{user_id}'
@@ -12,7 +13,8 @@ def get_my_tag_vector(db:Session, user_id:str):
     vector = db.execute(text(query)).scalar()
     return vector
 
-def get_users_tag_vector(db:Session, user_id:str):
+
+def get_users_tag_vector(db: Session, user_id: str):
     query = f"""
     select id, name, profile_image, introduce, status, tag_vec->'item' from user_account
     where tag_vec -> 'item' is not null
@@ -22,26 +24,25 @@ def get_users_tag_vector(db:Session, user_id:str):
     rows = db.execute(text(query)).fetchall()
     return rows
 
-def is_friend(db:Session, user_id:str, check_id:str):
-    query_x = f"""
-    select accepted from friend
-    where requester_id='{user_id}'
-    and acceptor_id='{check_id}'
+
+def is_friend(db: Session, user_id: str, check_id: str):
+    query = f"""
+    select exists (
+        select accepted from friend
+        where requester_id='{user_id}'
+        and acceptor_id='{check_id}'
+    )
     """
 
-    query_y = f"""
-    select accepted from friend
-    where requester_id='{check_id}'
-    and acceptor_id='{user_id}'
-    """
-
-    x_ = db.execute(text(query_x)).scalar() or False
-    y_ = db.execute(text(query_y)).scalar() or False
-    result = x_ & y_
+    result = db.execute(text(query)).scalar()
     return result
 
+<<<<<<< HEAD
 def get_users_all_tag(db:Session, user_id = None):
+=======
+>>>>>>> 3349a0cf4242ad68e06e110ad4e0066cc55103ee
 
+def get_users_all_tag(db: Session):
     query_tag = f"""
     select user_id, name from user_tag
     join tag t on user_tag.tag_id = t.id
@@ -61,7 +62,8 @@ def get_users_all_tag(db:Session, user_id = None):
 
     return users_tag
 
-def insert_user_vector(db:Session, user, vector):
+
+def insert_user_vector(db: Session, user, vector):
     query = f"""
     update user_account
     set tag_vec = '{{"item" : {vector}}}'
@@ -70,11 +72,3 @@ def insert_user_vector(db:Session, user, vector):
 
     db.execute(text(query))
     db.commit()
-
-
-
-
-
-
-
-
