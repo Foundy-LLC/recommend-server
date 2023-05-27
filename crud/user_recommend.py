@@ -35,7 +35,6 @@ def is_friend(db: Session, user_id: str, check_id: str):
     """
 
     result = db.execute(text(query)).scalar()
-    print(result)
     return result
 
 
