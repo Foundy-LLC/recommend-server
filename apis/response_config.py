@@ -12,7 +12,7 @@ class ResponseConfig:
         self.response_body["message"] = data["message"] or None
         self.response_body["data"] = data["data"] or []
 
-    def success(self, data, user_cnt, rec_type="친구"):
+    def success(self, data, user_cnt=0, rec_type="친구"):
         if self.recommend:
             self.message = f"추천 {rec_type} 목록을 성공적으로 얻었습니다."
         else:
@@ -27,10 +27,16 @@ class ResponseConfig:
             total = "totalRoomCount"
             data_type = "rooms"
 
-        new_data = {
-            "message": self.message,
-            "data": {total: user_cnt, data_type: self.data}
-        }
+        if self.recommend:
+            new_data = {
+                "message": self.message,
+                "data": {data_type: self.data}
+            }
+        else:
+            new_data = {
+                "message": self.message,
+                "data": {total: user_cnt, data_type: self.data}
+            }
 
         self.update(new_data)
         return self.response_body
