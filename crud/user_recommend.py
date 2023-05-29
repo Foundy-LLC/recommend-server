@@ -36,7 +36,7 @@ def is_recommendable(db: Session, user_id: str, check_id: str):
     )
     """
 
-    if db.execute(text(none_query)).scalar():
+    if not db.execute(text(none_query)).scalar():
         return True, "NONE"
 
     friend_query_1 = f"""
@@ -72,7 +72,7 @@ def is_recommendable(db: Session, user_id: str, check_id: str):
 
     request_result = db.execute(text(request_query)).scalar()
     if request_result:
-        return False
+        return False, ""
 
     return True, "REQUEST_RECEIVED"
 
