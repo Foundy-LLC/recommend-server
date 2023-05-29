@@ -25,17 +25,56 @@ def get_users_tag_vector(db: Session, user_id: str):
     return rows
 
 
-def is_friend(db: Session, user_id: str, check_id: str):
-    query = f"""
+def is_recommendable(db: Session, user_id: str, check_id: str):
+    # None type
+
+    none_query = f"""
     select exists (
-        select accepted from friend
-        where requester_id='{user_id}'
-        and acceptor_id='{check_id}'
+    select 1 from friend
+    where (requester_id='{user_id}' and acceptor_id='{check_id}') or
+          (requester_id='{check_id}' and acceptor_id='{user_id}')
     )
     """
 
-    result = db.execute(text(query)).scalar()
-    return result
+    if not db.execute(text(none_query)).scalar():
+        return True, "NONE"
+
+    friend_query_1 = f"""
+    select accepted from friend
+    where '{user_id}' in (select distinct requester_id from friend)
+    and '{check_id}' in (select distinct acceptor_id from friend)
+    and requester_id = '{user_id}'
+    and acceptor_id = '{check_id}'
+    """
+
+    friend_query_2 = f"""
+    select accepted from friend
+    where '{check_id}' in (select distinct requester_id from friend)
+    and '{user_id}' in (select distinct acceptor_id from friend)
+    and requester_id = '{check_id}'
+    and acceptor_id = '{user_id}'
+    """
+
+    result_1 = db.execute(text(friend_query_1)).scalar() or False
+    result_2 = db.execute(text(friend_query_2)).scalar() or False
+
+    if result_1 | result_2:
+        return False, ""
+
+    # Requested : 내가 보낸적 있냐
+    request_query = f"""
+    select exists (
+        select accepted from friend
+        where requester_id='{user_id}'
+          and acceptor_id='{check_id}'
+    )
+    """
+
+    request_result = db.execute(text(request_query)).scalar()
+    if request_result:
+        return False, ""
+
+    return True, "REQUEST_RECEIVED"
 
 
 def get_users_all_tag(db: Session, user_id=None):

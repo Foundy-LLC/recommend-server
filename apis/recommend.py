@@ -36,10 +36,11 @@ def get_recommended_friends(db, user_id: str):
             break
 
         u_id, name, profileImage, introduce, status, tag_vec = row
+        check, friend_status = is_recommendable(db, user_id, u_id)
 
-        if not is_friend(db, user_id, u_id):
+        if check:
             similarity = cosine_sim(user_vector, tag_vec)
-            recommend.append((u_id, name, profileImage, introduce, status, similarity))
+            recommend.append((u_id, name, profileImage, introduce, status, friend_status, similarity))
 
     recommend = sorted(recommend, key=lambda x: x[-1], reverse=True)
 

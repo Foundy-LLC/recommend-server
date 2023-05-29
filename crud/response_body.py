@@ -81,17 +81,17 @@ def get_recommend_response_body(result: list) -> Tuple[int, dict]:
     friends = []
 
     for row in result:
-        u_id, name, profileImage, introduce, status, similarity = row
+        u_id, name, profileImage, introduce, status, friend_status, similarity = row
 
         user_data = dict({
             "id": u_id,
             "name": name,
-            "similarity": f"{similarity * 100:.2f}%",
             "profileImage": profileImage,
+            "requestHistory": friend_status,
             "introduce": introduce,
             "status": status
         })
 
         friends.append(user_data)
 
-    return st_code.HTTP_200_OK, res_body.success(user_cnt=len(friends), data=friends)
+    return st_code.HTTP_200_OK, res_body.success(data=friends)
