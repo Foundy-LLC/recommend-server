@@ -47,7 +47,8 @@ def get_my_org_ranking(db: Session, user_id: str, organizationId: int):
         select *, rank() over (order by inquiry.rankingScore desc) as ranking from inquiry
         join belong
         on belong.user_id = inquiry.id
-        where organization_id = '{organizationId}') as final
+        where organization_id = '{organizationId}'
+        and is_authenticated=true) as final
     where final.user_id = '{user_id}'
     """
 

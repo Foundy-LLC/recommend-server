@@ -42,10 +42,7 @@ def get_org_ranking(db: Session, organizationId: int, page: int):
         return ["NO ORG"]
 
     query = f"""
-    select total.id, name, total.profileImage, total.rankingScore, \
-    rank() over (order by total.rankingScore desc) as ranking, total.introduce, total.studyTime, total.status
-    from
-    (
+    with total as (
         select id, name, profile_image as profileImage, coalesce(ranking.total_score, 0) as rankingScore,\
         introduce, coalesce(ranking.total_study_time, 0) as studyTime, status
         from user_account
@@ -53,11 +50,19 @@ def get_org_ranking(db: Session, organizationId: int, page: int):
             select user_id, total_score, total_study_time from user_ranking
         ) as ranking
         on ranking.user_id = user_account.id
-    ) as total
-    join belong
-    on total.id=belong.user_id
-    and belong.organization_id='{organizationId}'
-    and belong.is_authenticated=true
+    )
+    
+    select only_auth.id, only_auth.name, only_auth.profileImage, only_auth.rankingScore, \
+    rank() over (order by only_auth.rankingScore desc) as ranking, only_auth.introduce, only_auth.studyTime, only_auth.status
+    from 
+    (
+        select total.id, total.name, total.profileImage, total.rankingScore, \
+        total.introduce, total.studyTime, total.status
+        from total
+        join belong
+        on total.id=belong.user_id
+        and belong.organization_id='{organizationId}'
+        and belong.is_authenticated=true) as only_auth
     """
 
     query += f"""
