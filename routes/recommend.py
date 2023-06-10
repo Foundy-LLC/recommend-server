@@ -5,7 +5,6 @@ from db.connection import connect_db
 from gensim.models import fasttext
 import datetime
 import os
-from dotenv import load_dotenv
 
 print(f"== LOAD fasttext START at {datetime.datetime.now()}")
 model = fasttext.load_facebook_model(os.getenv("MODEL"))
@@ -29,11 +28,11 @@ def recommend_rooms(user_id: str, db: Session = Depends(connect_db)):
     return responses.JSONResponse(status_code=status, content=res)
 
 
-@router.get("/update-room-vec")
+@router.patch("/update-room-vec")
 def index(db: Session = Depends(connect_db), model=model):
     update_rooms_vector(db, model)
 
-@router.get("/{user_id}/update-vector")
+@router.patch("/{user_id}/update-vector")
 def index(user_id:str, db: Session = Depends(connect_db), model=model):
     update_users_vector(db, model, user_id=user_id)
 

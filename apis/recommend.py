@@ -45,8 +45,8 @@ def get_recommended_friends(db, user_id: str):
     return get_recommend_response_body(recommend)
 
 
-def update_users_vector(db, model: fasttext):
-    users_tag = get_users_all_tag(db)
+def update_users_vector(db, model: fasttext, user_id=None):
+    users_tag = get_users_all_tag(db, user_id)
 
     for user, tags in users_tag.items():
         tags_len = len(tags)
@@ -119,6 +119,6 @@ def preprocess_title(title:str):
 
 
     if not title:
-        return okt.nouns(original)
+        return original.split()
 
-    return okt.nouns(' '.join(title))
+    return title
